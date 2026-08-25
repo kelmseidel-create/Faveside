@@ -956,6 +956,47 @@
       margin-top: 30px;
     }
 
+    .parent-controls { padding: 110px 0; }
+    .parent-panel {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 48px;
+      align-items: center;
+      padding: clamp(32px, 5vw, 60px);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 38px;
+      background:
+        radial-gradient(circle at 90% 0%, rgba(255,42,161,0.24), transparent 36%),
+        radial-gradient(circle at 0 100%, rgba(100,44,255,0.25), transparent 42%),
+        #0d0d14;
+      box-shadow: 0 40px 120px rgba(92,42,255,0.16), 0 25px 90px rgba(255,42,161,0.10);
+    }
+    .parent-copy h2 {
+      margin: 18px 0 22px;
+      font-size: clamp(3rem, 5.8vw, 5.5rem);
+      line-height: 0.92;
+      letter-spacing: -0.065em;
+    }
+    .parent-copy > p { color: #c0bac7; font-size: 1.12rem; line-height: 1.7; }
+    .parent-list { display: grid; gap: 13px; margin-top: 28px; }
+    .parent-list div { display: flex; gap: 12px; align-items: flex-start; color: #eeeaf2; font-weight: 700; line-height: 1.45; }
+    .parent-list .check { flex: 0 0 28px; width: 28px; height: 28px; border-radius: 9px; background: linear-gradient(135deg, var(--pink), var(--purple)); color: white; }
+    .parent-dashboard { padding: 22px; border: 1px solid rgba(255,255,255,0.12); border-radius: 30px; background: rgba(7,7,11,0.82); box-shadow: 0 28px 90px rgba(0,0,0,0.45); }
+    .dashboard-head, .child-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .dashboard-head { margin-bottom: 20px; }
+    .dashboard-head small, .kid small { color: #918b9a; }
+    .parent-lock { padding: 8px 11px; border-radius: 999px; background: rgba(117,242,186,0.1); color: #75f2ba; font-size: 0.75rem; font-weight: 900; }
+    .child-profile { margin-bottom: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,0.035); }
+    .kid { display: flex; align-items: center; gap: 10px; }
+    .kid-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(145deg, #ff78cf, #7e52ff); }
+    .protected { color: #75f2ba; font-size: 0.76rem; font-weight: 900; }
+    .approved-creators { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
+    .creator-chip { padding: 8px 10px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,0.06); font-size: 0.78rem; font-weight: 800; }
+    .creator-chip.add { color: #ff8ed9; border-style: dashed; }
+    .approval-gate { margin-top: 14px; padding: 14px; border: 1px solid rgba(255,255,255,0.08); border-radius: 17px; background: linear-gradient(135deg, rgba(255,42,161,0.12), rgba(100,44,255,0.12)); color: #cec7d3; font-size: 0.84rem; line-height: 1.5; }
+    .premium-parent-callout { margin: 18px 0; padding: 14px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; background: linear-gradient(135deg, rgba(255,42,161,0.13), rgba(139,92,255,0.13)); font-weight: 800; line-height: 1.5; }
+
     footer {
       padding: 55px 0 38px;
 
@@ -1019,6 +1060,10 @@
       }
 
       .pricing-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .parent-panel {
         grid-template-columns: 1fr;
       }
 
@@ -1148,6 +1193,7 @@
     <nav class="nav-links">
       <a href="#features">Features</a>
       <a href="#hot5">Hot 5</a>
+      <a href="#parent-controls">Parent Controls</a>
       <a href="#pricing">Faveside+</a>
     </nav>
 
@@ -1550,6 +1596,71 @@
 
     </section>
 
+    <section id="parent-controls" class="parent-controls">
+
+      <div class="shell">
+
+        <div class="parent-panel">
+
+          <div class="parent-copy">
+            <div class="section-kicker">Premium family feature</div>
+            <h2>They explore. <span class="gradient-text">You decide.</span></h2>
+            <p>
+              Faveside Parent Controls give families a better middle ground:
+              kids can enjoy the creators they love, while parents decide
+              exactly who appears in each child's Faveside experience.
+            </p>
+            <div class="parent-list">
+              <div><span class="check">✓</span><span>Approve creators individually—without opening access to everyone.</span></div>
+              <div><span class="check">✓</span><span>Create separate child profiles with their own approved lists.</span></div>
+              <div><span class="check">✓</span><span>Lock creator changes behind the parent account.</span></div>
+              <div><span class="check">✓</span><span>Expand access whenever your family is ready.</span></div>
+            </div>
+          </div>
+
+          <div class="parent-dashboard">
+            <div class="dashboard-head">
+              <div><strong>Parent Dashboard</strong><br /><small>Creator access</small></div>
+              <div class="parent-lock">🔒 Parent Locked</div>
+            </div>
+
+            <div class="child-profile">
+              <div class="child-head">
+                <div class="kid"><span class="kid-avatar"></span><div><strong>Emma</strong><br /><small>5 approved creators</small></div></div>
+                <span class="protected">Protected</span>
+              </div>
+              <div class="approved-creators">
+                <span class="creator-chip">Creator One ✓</span>
+                <span class="creator-chip">Creator Two ✓</span>
+                <span class="creator-chip">Creator Three ✓</span>
+                <span class="creator-chip add">+ Approve creator</span>
+              </div>
+            </div>
+
+            <div class="child-profile">
+              <div class="child-head">
+                <div class="kid"><span class="kid-avatar" style="background:linear-gradient(145deg,#79c9ff,#845cff)"></span><div><strong>Noah</strong><br /><small>3 approved creators</small></div></div>
+                <span class="protected">Protected</span>
+              </div>
+              <div class="approved-creators">
+                <span class="creator-chip">Creator A ✓</span>
+                <span class="creator-chip">Creator B ✓</span>
+                <span class="creator-chip add">+ Approve creator</span>
+              </div>
+            </div>
+
+            <div class="approval-gate">
+              New creators stay hidden until a parent approves them. Kids get
+              their Faveside. Parents keep the final say.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
     <section id="pricing">
 
       <div class="shell">
@@ -1617,6 +1728,10 @@
               Or $39.99 annually.
             </div>
 
+            <div class="premium-parent-callout">
+              🛡️ Includes Parent Controls—approve exactly which creators your kids can access.
+            </div>
+
             <div class="benefits">
 
               <div class="benefit">
@@ -1642,6 +1757,11 @@
               <div class="benefit">
                 <span class="check">✓</span>
                 Creator categories and deeper organization
+              </div>
+
+              <div class="benefit">
+                <span class="check">✓</span>
+                Parent-managed child profiles and individual creator approvals
               </div>
 
               <div class="benefit">
