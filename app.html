@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Your personal Faveside creator dashboard.">
+  <meta name="robots" content="noindex,nofollow">
   <title>Faveside — Your creator dashboard</title>
   <style>
     :root{--bg:#07070b;--panel:#111119;--panel2:#171722;--line:#2a2935;--text:#f8f5fa;--muted:#9e98a7;--pink:#ff3bac;--purple:#895cff;--green:#72e9b3;--shadow:0 24px 70px #0008}
@@ -67,6 +68,7 @@
   <dialog id="top3Dialog"><form class="modal" id="top3Form"><h2>Choose your Top 3</h2><p>Enter the three creators you never want to miss. You can change these anytime.</p><div class="fields"><div class="field"><label for="topOne">#1 favorite</label><input id="topOne" required maxlength="50" placeholder="Creator name"></div><div class="field"><label for="topTwo">#2 favorite</label><input id="topTwo" required maxlength="50" placeholder="Creator name"></div><div class="field"><label for="topThree">#3 favorite</label><input id="topThree" required maxlength="50" placeholder="Creator name"></div></div><div class="modal-actions"><button class="btn" type="button" data-close="top3Dialog">Cancel</button><button class="btn primary" type="submit">Save my Top 3</button></div></form></dialog>
   <div class="toast" id="toast" role="status"></div>
 
+  <script src="app-sync.js"></script>
   <script>
     const KEY='faveside-mvp-v1';
     const defaults={name:'',creators:[{id:1,name:'Maya Hart',category:'Lifestyle',handle:'@mayahart',accent:'#ff3bac',activity:92},{id:2,name:'Theo Makes',category:'Food',handle:'@theomakes',accent:'#ff8a3d',activity:85},{id:3,name:'Nova Quinn',category:'Entertainment',handle:'@novaquinn',accent:'#895cff',activity:77}],profiles:[]};
@@ -105,5 +107,7 @@
     function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),2200)}
     const h=new Date().getHours();$('#daypart').textContent=h<12?'morning':h<18?'afternoon':'evening';render();
   </script>
+  <script src="parent-sync.js"></script>
+  <script src="app-youtube.js"></script>
 </body>
 </html>

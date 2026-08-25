@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /app.html
+Disallow: /account.html
+Disallow: /family.html
+Disallow: /child.html
+Disallow: /api/
+
+Sitemap: https://faveside.com/sitemap.xml

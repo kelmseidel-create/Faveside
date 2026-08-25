@@ -155,8 +155,8 @@ $script = <<<'JS'
     try {
       const response = await fetch(form.action, {
         method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
+        body: new URLSearchParams(new FormData(form)),
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' }
       });
 
       let data = {};
