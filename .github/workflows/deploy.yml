@@ -26,3 +26,9 @@ jobs:
             **/.git*/**
             **/node_modules/**
             README.md
+            data/*.sqlite
+            data/*.sqlite-*
+            data/*.csv
+            data/*.json
+            data/.session-secret
+            data/youtube-key.php
