@@ -1,0 +1,15 @@
+{
+  "name": "faveside-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Faveside production website and creator dashboard",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "check": "node --check app.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED"
+}
