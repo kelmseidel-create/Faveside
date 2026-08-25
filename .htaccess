@@ -1,9 +1,8 @@
 DirectoryIndex index.php index.html
 
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteRule ^app\.html$ app.php [L]
-</IfModule>
+RewriteEngine On
+RewriteRule ^app\.html$ app.php [L]
+RewriteRule ^account\.html$ account.php [L]
 
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
