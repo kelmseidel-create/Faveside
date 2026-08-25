@@ -12,7 +12,7 @@ if ($html === false) {
 
 $sync = '<script src="app-sync.js"></script>' . "\n  ";
 $html = preg_replace('/<script>\s*const KEY=/', $sync . '<script>\n    const KEY=', $html, 1) ?? $html;
-$html = str_replace('</body>', '  <script src="parent-sync.js"></script>' . "\n</body>", $html);
+$html = str_replace('</body>', '  <script src="parent-sync.js"></script>' . "\n  <script src=\"app-youtube.js\"></script>\n</body>", $html);
 
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-cache');
