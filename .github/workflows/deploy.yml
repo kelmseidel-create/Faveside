@@ -32,3 +32,4 @@ jobs:
             data/*.json
             data/.session-secret
             data/youtube-key.php
+            data/square-config.php
