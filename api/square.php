@@ -147,10 +147,10 @@ if ($action === 'checkout') {
             'name' => $name,
             'price_money' => ['amount' => $amount, 'currency' => 'USD'],
             'location_id' => $location,
-            'subscription_plan_id' => $variation,
         ],
         'pre_populated_data' => ['buyer_email' => (string)$user['email']],
         'checkout_options' => [
+            'subscription_plan_id' => $variation,
             'redirect_url' => 'https://faveside.com/account.php?checkout=success',
             'ask_for_shipping_address' => false,
         ],
