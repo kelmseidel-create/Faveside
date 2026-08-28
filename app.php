@@ -30,6 +30,34 @@ $enhancement = <<<'HTML'
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   }
 
+  const originalAddCreator = window.addCreator;
+  if (typeof originalAddCreator === 'function') {
+    window.addCreator = function(c) {
+      const entitlement = window.FavesideAccount?.entitlement || 'free';
+      const premium = entitlement === 'premium' || entitlement === 'complimentary';
+      if (!premium && typeof state !== 'undefined' && Array.isArray(state.creators) && state.creators.length >= 3) {
+        if (typeof toast === 'function') toast('Free Faveside includes up to 3 creators. Faveside+ unlocks more.');
+        return;
+      }
+
+      originalAddCreator(c);
+
+      if (c && c.youtubeChannelId && typeof state !== 'undefined' && Array.isArray(state.creators)) {
+        const added = [...state.creators].reverse().find(x =>
+          (c.handle && x.handle && x.handle.toLowerCase() === String(c.handle).toLowerCase()) ||
+          (x.name && c.name && x.name.toLowerCase() === String(c.name).toLowerCase())
+        );
+        if (added) {
+          added.youtubeChannelId = String(c.youtubeChannelId);
+          added.url = c.url || added.url || '';
+          added.platform = 'YouTube';
+          if (c.image) added.image = c.image;
+          if (typeof save === 'function') save();
+        }
+      }
+    };
+  }
+
   function mount() {
     if (!window.FavesideNotifications || document.getElementById('favesideNotifyPrompt')) return;
     const state = window.FavesideNotifications.currentState();
