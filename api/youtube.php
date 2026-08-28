@@ -22,12 +22,67 @@ function youtube_key(): string {
     return '';
 }
 
+function valid_channel_id(string $channelId): bool {
+    return (bool)preg_match('/^UC[A-Za-z0-9_-]{20,30}$/', $channelId);
+}
+
+function youtube_feed(string $channelId): array {
+    if (!valid_channel_id($channelId)) respond(422, ['ok' => false, 'error' => 'Invalid YouTube channel.']);
+
+    $url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' . rawurlencode($channelId);
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'GET',
+            'timeout' => 10,
+            'ignore_errors' => true,
+            'header' => "Accept: application/atom+xml, application/xml;q=0.9\r\nUser-Agent: Faveside/1.0\r\n",
+        ]
+    ]);
+    $raw = @file_get_contents($url, false, $context);
+    if ($raw === false) return [];
+
+    $status = 200;
+    foreach (($http_response_header ?? []) as $line) {
+        if (preg_match('/^HTTP\/\S+\s+(\d{3})/', $line, $m)) $status = (int)$m[1];
+    }
+    if ($status >= 400) return [];
+
+    libxml_use_internal_errors(true);
+    $xml = simplexml_load_string($raw);
+    if ($xml === false) return [];
+    $xml->registerXPathNamespace('atom', 'http://www.w3.org/2005/Atom');
+    $xml->registerXPathNamespace('yt', 'http://www.youtube.com/xml/schemas/2015');
+    $xml->registerXPathNamespace('media', 'http://search.yahoo.com/mrss/');
+
+    $out = [];
+    foreach (($xml->xpath('//atom:entry') ?: []) as $entry) {
+        $yt = $entry->children('http://www.youtube.com/xml/schemas/2015');
+        $media = $entry->children('http://search.yahoo.com/mrss/');
+        $videoId = trim((string)($yt->videoId ?? ''));
+        if ($videoId === '') continue;
+        $thumbnail = '';
+        if (isset($media->group)) {
+            $thumbs = $media->group->children('http://search.yahoo.com/mrss/')->thumbnail;
+            if (isset($thumbs[0])) $thumbnail = (string)$thumbs[0]['url'];
+        }
+        $out[] = [
+            'videoId' => $videoId,
+            'title' => trim((string)($entry->title ?? 'New video')),
+            'publishedAt' => trim((string)($entry->published ?? '')),
+            'thumbnail' => $thumbnail,
+            'url' => 'https://www.youtube.com/watch?v=' . rawurlencode($videoId),
+        ];
+        if (count($out) >= 5) break;
+    }
+    return $out;
+}
+
 function google_get(string $endpoint, array $params): array {
     $key = youtube_key();
     if ($key === '') respond(503, [
         'ok' => false,
         'setup_required' => true,
-        'error' => 'YouTube is ready to connect, but the server API key has not been installed yet.'
+        'error' => 'Live YouTube search needs the server API key. Followed-channel updates still work.'
     ]);
 
     $params['key'] = $key;
@@ -60,7 +115,12 @@ function google_get(string $endpoint, array $params): array {
 $action = $_GET['action'] ?? 'status';
 
 if ($action === 'status') {
-    respond(200, ['ok' => true, 'configured' => youtube_key() !== '']);
+    respond(200, [
+        'ok' => true,
+        'configured' => youtube_key() !== '',
+        'activity_available' => true,
+        'search_available' => youtube_key() !== ''
+    ]);
 }
 
 if ($action === 'search') {
@@ -120,7 +180,12 @@ if ($action === 'search') {
 
 if ($action === 'activity') {
     $channelId = trim((string)($_GET['channel_id'] ?? ''));
-    if (!preg_match('/^UC[A-Za-z0-9_-]{20,30}$/', $channelId)) respond(422, ['ok' => false, 'error' => 'Invalid YouTube channel.']);
+    if (!valid_channel_id($channelId)) respond(422, ['ok' => false, 'error' => 'Invalid YouTube channel.']);
+
+    $feed = youtube_feed($channelId);
+    if ($feed) respond(200, ['ok' => true, 'videos' => $feed, 'source' => 'feed']);
+
+    if (youtube_key() === '') respond(502, ['ok' => false, 'error' => 'YouTube updates are temporarily unavailable for this channel.']);
 
     $videos = google_get('search', [
         'part' => 'snippet',
@@ -142,7 +207,7 @@ if ($action === 'activity') {
             'url' => 'https://www.youtube.com/watch?v=' . rawurlencode($videoId),
         ];
     }
-    respond(200, ['ok' => true, 'videos' => $out]);
+    respond(200, ['ok' => true, 'videos' => $out, 'source' => 'api']);
 }
 
 respond(404, ['ok' => false, 'error' => 'Unknown YouTube action.']);
