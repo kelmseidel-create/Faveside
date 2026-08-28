@@ -1,5 +1,7 @@
 (() => {
+  const LAST_SEEN_KEY = 'faveside-youtube-last-seen-v1';
   let configured = false;
+  let activityAvailable = true;
   let installed = false;
   let debounce;
 
@@ -24,12 +26,22 @@
     return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  function readLastSeen() {
+    try { return JSON.parse(localStorage.getItem(LAST_SEEN_KEY) || '{}'); } catch { return {}; }
+  }
+
+  function writeLastSeen(value) {
+    try { localStorage.setItem(LAST_SEEN_KEY, JSON.stringify(value)); } catch {}
+  }
+
   async function checkStatus() {
     try {
       const d = await yt('status');
       configured = !!d.configured;
+      activityAvailable = d.activity_available !== false;
     } catch {
       configured = false;
+      activityAvailable = true;
     }
   }
 
@@ -82,35 +94,89 @@
     const helper = document.querySelector('.search-help');
     if (helper) {
       helper.textContent = configured
-        ? 'Live YouTube search is connected. TikTok integration is next.'
-        : 'YouTube integration is installed and waiting for the server API key. The starter directory remains available meanwhile.';
+        ? 'Live YouTube search and followed-channel updates are connected. TikTok integration is next.'
+        : 'Followed YouTube-channel updates are connected. Live channel search will turn on when the server API key is installed.';
     }
   }
 
+  function installNotificationControl() {
+    if (!('Notification' in window) || document.getElementById('favesideNotifyButton')) return;
+    const actions = document.querySelector('.top-actions');
+    if (!actions) return;
+
+    const button = document.createElement('button');
+    button.id = 'favesideNotifyButton';
+    button.className = 'btn';
+    button.type = 'button';
+
+    const refresh = () => {
+      button.textContent = Notification.permission === 'granted' ? 'Alerts ✓' : 'Turn on alerts';
+      button.disabled = Notification.permission === 'denied';
+      button.title = Notification.permission === 'denied' ? 'Notifications are blocked in your browser settings.' : 'Get alerts for newly detected creator videos.';
+    };
+
+    button.addEventListener('click', async () => {
+      try { await Notification.requestPermission(); } catch {}
+      refresh();
+    });
+    refresh();
+    actions.insertBefore(button, actions.firstChild);
+  }
+
+  function maybeNotify(creator, latest, lastSeen) {
+    const channelId = creator.youtubeChannelId;
+    if (!channelId || !latest?.videoId) return;
+    const previous = lastSeen[channelId];
+    lastSeen[channelId] = latest.videoId;
+    if (!previous || previous === latest.videoId || !('Notification' in window) || Notification.permission !== 'granted') return;
+
+    try {
+      const n = new Notification(`${creator.name} posted on YouTube`, {
+        body: latest.title || 'There is a new video on your Faveside.',
+        icon: creator.image || latest.thumbnail || undefined,
+        tag: `faveside-${channelId}-${latest.videoId}`
+      });
+      n.onclick = () => {
+        window.focus();
+        if (latest.url) window.open(latest.url, '_blank', 'noopener,noreferrer');
+        n.close();
+      };
+    } catch {}
+  }
+
   async function enrichCatchup() {
-    if (!configured) return;
+    if (!activityAvailable) return;
     let state;
     try { state = JSON.parse(localStorage.getItem('faveside-mvp-v1') || '{}'); } catch { return; }
-    const creators = (state.creators || []).filter(c => c.youtubeChannelId).slice(0, 3);
+    const creators = (state.creators || []).filter(c => c.youtubeChannelId).slice(0, 12);
     if (!creators.length) return;
 
     const list = document.getElementById('catchupList');
     if (!list) return;
     const updates = [];
+    const lastSeen = readLastSeen();
+
     for (const creator of creators) {
       try {
         const d = await yt('activity', { channel_id: creator.youtubeChannelId });
         const latest = (d.videos || [])[0];
-        if (latest) updates.push({ creator, latest });
+        if (latest) {
+          updates.push({ creator, latest });
+          maybeNotify(creator, latest, lastSeen);
+        }
       } catch {}
     }
+    writeLastSeen(lastSeen);
+
     if (!updates.length) return;
+    updates.sort((a, b) => new Date(b.latest.publishedAt || 0) - new Date(a.latest.publishedAt || 0));
     list.innerHTML = updates.map(({creator, latest}) => `<article class="card update"><span class="dot"></span><div><h3>${esc(creator.name)} posted on YouTube</h3><p><a href="${esc(latest.url)}" target="_blank" rel="noopener noreferrer">${esc(latest.title)}</a> · ${latest.publishedAt ? esc(new Date(latest.publishedAt).toLocaleDateString()) : 'recently'}</p></div></article>`).join('');
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
     await checkStatus();
     enhanceSearch();
+    installNotificationControl();
     enrichCatchup();
   });
 })();
