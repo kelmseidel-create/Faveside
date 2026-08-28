@@ -10,6 +10,14 @@ if ($html === false) {
     exit;
 }
 
+$headEnhancement = <<<'HTML'
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07070b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Faveside">
+HTML;
+
 $enhancement = <<<'HTML'
 <style>
 .faveside-notify{position:fixed;right:18px;bottom:84px;z-index:45;max-width:330px;padding:14px;border:1px solid #ffffff1b;border-radius:18px;background:#111119ee;box-shadow:0 24px 70px #0008;backdrop-filter:blur(18px)}
@@ -18,6 +26,10 @@ $enhancement = <<<'HTML'
 <script src="notifications.js"></script>
 <script>
 (() => {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+
   function mount() {
     if (!window.FavesideNotifications || document.getElementById('favesideNotifyPrompt')) return;
     const state = window.FavesideNotifications.currentState();
@@ -52,6 +64,7 @@ $enhancement = <<<'HTML'
 </script>
 HTML;
 
+$html = str_replace('</head>', $headEnhancement . "\n</head>", $html);
 $html = str_replace('</body>', $enhancement . "\n</body>", $html);
 header('Content-Type: text/html; charset=utf-8');
 header('Cache-Control: no-cache');
