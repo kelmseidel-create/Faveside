@@ -66,7 +66,7 @@ $enhancement = <<<'HTML'
     box.id = 'favesideNotifyPrompt';
     box.className = 'faveside-notify';
     box.setAttribute('aria-live','polite');
-    box.innerHTML = '<strong>Never miss an update</strong><p>Allow Faveside notifications for updates from creators you follow.</p><button type="button" id="favesideEnableNotifications">Enable notifications</button><div class="status" id="favesideNotifyStatus"></div>';
+    box.innerHTML = '<strong>YouTube upload alerts</strong><p>Allow browser alerts for new uploads detected from followed YouTube channels while Faveside is open.</p><button type="button" id="favesideEnableNotifications">Enable notifications</button><div class="status" id="favesideNotifyStatus"></div>';
     document.body.appendChild(box);
     const button = document.getElementById('favesideEnableNotifications');
     const status = document.getElementById('favesideNotifyStatus');
